@@ -8,7 +8,6 @@ import { useSession } from "../lib/useSession"
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/donors", label: "Find Donor" },
-  { href: "/donors/nearby", label: "📍 Nearby" },
   { href: "/requests", label: "Blood Requests" },
   { href: "/about", label: "About" },
 ]
