@@ -1,19 +1,25 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import type { Donor } from "../../../types/donor"
+import { connectDB } from "../../../lib/db"
+import Donor from "../../../models/Donor"
+import type { Donor as DonorType } from "../../../types/donor"
 
 type Props = {
   params: Promise<{ id: string }>
 }
 
-async function getDonor(id: string): Promise<Donor | null> {
+// Query MongoDB directly — avoids the localhost URL issue in production
+async function getDonor(id: string): Promise<DonorType | null> {
   try {
-    const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000"
-    const res = await fetch(`${baseUrl}/api/donors/${id}`, { cache: "no-store" })
-    if (!res.ok) return null
-    const data = await res.json()
-    if (!data.success) return null
-    return data.donor
+    // Validate ObjectId format before querying (prevents CastError 500)
+    if (!/^[a-f\d]{24}$/i.test(id)) return null
+
+    await connectDB()
+    const donor = await Donor.findById(id).select("-__v").lean()
+    if (!donor) return null
+
+    // Convert Mongoose document to plain object with string _id
+    return JSON.parse(JSON.stringify(donor)) as DonorType
   } catch {
     return null
   }
@@ -80,7 +86,6 @@ export default async function DonorProfilePage({ params }: Props) {
               </div>
             </div>
 
-            {/* Divider */}
             <div className="my-7 border-t border-gray-100" />
 
             {/* Details */}
@@ -93,7 +98,6 @@ export default async function DonorProfilePage({ params }: Props) {
               <InfoCard icon="📅" label="Registered On" value={createdDate} />
             </div>
 
-            {/* Divider */}
             <div className="my-7 border-t border-gray-100" />
 
             {/* CTA */}
