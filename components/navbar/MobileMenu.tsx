@@ -15,6 +15,7 @@ const navLinks = [
   { href: "/donors", label: "Find Donor" },
   { href: "/requests", label: "Blood Requests" },
   { href: "/about", label: "About" },
+  { href: "/contact", label: "Contact" },
 ]
 
 export default function MobileMenu({ user, onLogout }: Props) {
